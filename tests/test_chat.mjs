@@ -141,7 +141,7 @@ if (mode === '--mock-web') {
     [{ err: false, label: true, text: '依据网上说法：可以 [1]（摘要条数 2）',
        src: [['[1] Futurespan prepared card question <b>BoardGameGeek', 'https://boardgamegeek.com/thread/1', '_blank'], ['[2] 研究机构讨论example.cn', 'https://example.cn/a', '_blank']] }, ['Through the Ages New Story Hammurabi Code of Laws site:boardgamegeek.com', 'Through the Ages New Story Hammurabi Code of Laws']]);
   await page.screenshot({ path: out + '/chat_web.png' });
-  eq('web prompt asks which expansion a claim belongs to', lastSys.includes('只适用于扩展《群星计画》'), true);
+  eq('web prompt asks to tell the new edition from the old one and the app', ['A New Story of Civilization', 'A Story of Civilization', 'App'].every(w => lastSys.includes(w)), true);
   eq('the search request never reaches the page as text', (await page.$$eval('.cm.a', l => l.map(x => x.textContent).join(''))).includes('需联网'), false);
   eq('nothing found: says so, no label, nothing made up', [await askOnce('网上还有啥？', 'empty'), asked.length],
     [{ err: false, label: false, text: '本站资料里没有这一条，网上也没找到可靠的说法。建议翻一下规则书，或者问问桌上的老玩家。', src: [] }, 2]);
