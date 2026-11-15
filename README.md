@@ -51,6 +51,14 @@
 - 完整游戏 / 和平局：全桌共用一个“终局事件”列表（当前和未来事件牌堆里剩下的时代 III 事件，可以写卡名），每人按卡面填每张得几分；再加终局奖励。短局另加时代 II 奇迹 ×6。
 - 「结算」页显示排名、得分构成和成就，文化平手共享胜利，可以保存结算长图，并给游戏打分（写到总入口的评价里，game key `through-the-ages`）。
 
+### 打印海报（3 寸相纸）
+
+结算页「打印」生成一张 1200×1800 的竖版海报（2×3 英寸，600 dpi），给口袋照片打印机用：上方是时代变迁的插画和“历史巨轮”缎带标题，2–3 人时有“文明之巅”冠军徽章，下面按名次列出每位玩家的头像、名字、总分和分项（第一局：游戏中文化、成就；完整游戏：文化、事件、奇迹、奖励），底部是日期、房间号和站点地址。字号和留边按总目录 `docs/打印海报说明.md`：正文不小于 40 px、名字不小于 52 px、总分不小于 90 px，重要内容离四边至少 60 px。
+
+底图 `public/img/poster-bg.jpg` 是用 Codex 生成的原创插画（金色边框、金字塔到摩天楼的时代剪影、空白缎带，没有文字），点「打印」时才加载。海报在隐藏的 600×900 节点里排版，用 html2canvas 按 2 倍截图，生成后在图片查看层里长按保存，再用打印机 App 选 3 寸相纸打印。
+
+<img src="docs/screenshots/poster_2p.jpg" width="200" alt="2 人海报"> <img src="docs/screenshots/poster_4p.jpg" width="200" alt="4 人海报">
+
 ## 技术
 
 Cloudflare Workers + 静态资源，原生 JS，无构建步骤。每个房间一个 Durable Object（`Room`），`Lobby` 记首页房间列表，`Archive` 存往期对局。`public/logic.js` 是前后端共用的规则逻辑，服务端 `reduce()` 权威校验；`public/steps.js` 是开局清单、时代转换和回合速查的文字。规则助手 `/api/chat` 依据 `tools/讲解稿.md` 和 `tools/faq.json`，资料没有时联网查找（先 BGG），模型顺序和超时同系列其他站。常见问题页 `public/guide.html` 由 `python3 tools/build_guide.py tools/faq.json public/guide.html` 生成。
@@ -68,6 +76,7 @@ node tests/test_logic.mjs                                               # 规则
 node tests/test_room.mjs    http://localhost:8871/ ./shots               # 双手机 3 人第一局：每次时代转换、撤销、最后一轮、计分、结算、长图
 node tests/test_history.mjs http://localhost:8871/ ./shots --many-rooms  # 往期对局存档、搜索、成绩参照；房间多时首页按钮仍在首屏
 node tests/test_review.mjs  http://localhost:8871/ ./shots               # 结算页评价卡（总入口接口用 page.route 拦截，不写线上数据）
+node tests/test_poster.mjs  http://localhost:8871/ ./shots               # 打印海报：2 / 3 / 4 人各一张，1200×1800、名次和总分、字号、留边、不重叠
 node tests/test_teach.mjs   http://localhost:8871/ ./shots               # 讲规则页：段落、要素、术语弹窗、两种模式、注意事项、图标速查、手机宽度
 node tests/test_chat.mjs    http://localhost:8871/ ./shots --no-key      # 规则助手界面（wrangler dev 不带密钥）
 node tests/test_chat.mjs    http://localhost:8871/ ./shots --fake-key    # 请求校验、上游出错、限流

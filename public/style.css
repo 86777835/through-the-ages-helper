@@ -584,3 +584,34 @@ img.gt{height:54px;width:auto;max-width:100%;object-fit:contain}
 .evadd{border:1.5px dashed rgba(45,79,92,.5);border-radius:16px;background:none;padding:5px 12px;font:600 13px var(--sans);color:var(--navy)}
 .evin{width:100%;height:42px;margin-top:10px;font-size:16px}
 .sheet h3 small{margin-left:8px;font:500 12px var(--sans);color:var(--ink2)}
+
+/* print poster: 600×900 CSS px, captured at scale 2 → 1200×1800 (3-inch photo paper) */
+#poster{position:fixed;left:-10000px;top:0;width:600px;height:900px;overflow:hidden;color:#2b2219;font-family:var(--serif)}
+#poster .pbg{position:absolute;inset:0;width:600px;height:900px}
+#poster .ph1{position:absolute;left:0;right:0;top:177px;text-align:center;font:900 36px/44px var(--serif);letter-spacing:12px;text-indent:12px;color:#7a2a17;text-shadow:0 1px 0 rgba(255,244,214,.9)}
+#poster .ph2{position:absolute;left:0;right:0;top:250px;text-align:center;font:600 20px/1 var(--sans);letter-spacing:2px;color:#5c4f40}
+#poster .prs{position:absolute;left:36px;right:36px;top:290px;bottom:132px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+#poster .pr{display:flex;align-items:center;gap:12px;padding:10px 16px 10px 10px;border-radius:14px;background:rgba(255,250,238,.72);border:2px solid rgba(160,120,60,.45)}
+#poster .pr.win{background:rgba(255,244,214,.9);border-color:#c8963c;box-shadow:0 0 0 2px rgba(200,150,60,.35)}
+#poster .pp{flex:none;width:34px;text-align:center;font:600 26px/1 var(--num);color:#8a7356}
+#poster .win .pp{font:900 26px/1 var(--serif);color:#b8432e}
+#poster .pa{flex:none;width:58px;height:58px;border-radius:50%;background:var(--c);border:3px solid #fff8e8;box-shadow:0 2px 4px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font:900 28px/1 var(--serif)}
+#poster .pw{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+#poster .pw b{font:900 27px/1.15 var(--serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#poster .pw i{font:600 20px/1.1 var(--sans);font-style:normal;color:#5c4f40;white-space:nowrap}
+#poster .pt{flex:none;font:600 46px/1 var(--num);color:#2b2219}
+#poster .win .pt{color:#9e2f1c;font-size:52px}
+#poster .n2 .pr{padding:16px 18px 16px 12px}
+#poster .pf{position:absolute;left:44px;right:44px;bottom:92px;display:flex;justify-content:space-between;font:600 20px/1 var(--sans);color:#5c4f40}
+#poster .pu{position:absolute;left:0;right:0;bottom:56px;text-align:center;font:500 15px/1 var(--sans);letter-spacing:1px;color:#8a7356}
+/* poster: champion medallion (2–3 players) or a gold divider (4 players) */
+#poster .pch{position:absolute;left:40px;right:40px;top:292px;text-align:center}
+#poster .pcl{font:900 22px/1 var(--serif);color:#9e2f1c;letter-spacing:4px}
+#poster .pcl:before,#poster .pcl:after{content:"";display:inline-block;width:70px;height:2px;margin:0 14px;vertical-align:6px;background:linear-gradient(90deg,transparent,#c8963c)}
+#poster .pcl:after{background:linear-gradient(90deg,#c8963c,transparent)}
+#poster .pcs{display:flex;justify-content:center;gap:16px;margin-top:14px}
+#poster .pca{width:104px;height:104px;border-radius:50%;background:var(--c);border:5px solid #fff4d6;box-shadow:0 0 0 4px #c8963c,0 6px 14px rgba(60,30,10,.35);display:flex;align-items:center;justify-content:center;color:#fff;font:900 50px/1 var(--serif);text-shadow:0 2px 3px rgba(0,0,0,.35)}
+#poster .pcn{margin-top:14px;font:900 32px/1.1 var(--serif);color:#2b2219;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#poster .prs.n2,#poster .prs.n3{top:500px}
+#poster .pdv{position:absolute;left:150px;right:150px;top:284px;height:10px;background:radial-gradient(circle,#c8963c 0 4px,transparent 4.5px) center/10px 10px no-repeat,linear-gradient(90deg,transparent,#c8963c 30%,transparent 46%,transparent 54%,#c8963c 70%,transparent) center/100% 2px no-repeat}
+#poster .prs.n4{top:306px}

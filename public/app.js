@@ -365,7 +365,7 @@ function mvpTab() {
       <div class="fg">${S.n} 人局 · ${modeName(S)} · ${S.round} 轮</div>
       <div class="pts">${champ.total}<small>文化</small></div>
     </div>
-    <div class="btns sv" data-html2canvas-ignore><button class="btn ghost" data-act="rn">${ui.rn ? '收起改名' : '修改玩家名'}</button><button class="btn navy" data-act="save" ${ui.saving ? 'disabled' : ''}>${ui.saving ? '正在生成…' : '保存结算长图'}</button></div>
+    <div class="btns sv" data-html2canvas-ignore><button class="btn ghost" data-act="rn">${ui.rn ? '收起改名' : '修改玩家名'}</button><button class="btn navy" data-act="save" ${ui.saving ? 'disabled' : ''}>${ui.saving ? '正在生成…' : '保存长图'}</button><button class="btn navy" data-act="poster" ${ui.saving ? 'disabled' : ''}>打印</button></div>
     ${ui.rn ? `<div class="card" data-k="rn" data-html2canvas-ignore style="margin-top:8px;padding:2px 10px 8px">${ids(S).map(id => { const i = S.players.findIndex(p => p.id === id); return `<div class="tb">${por(id, 'xs')}<input class="pn" data-pk="name-${i}" data-name="${i}" value="${esc(P(id).name)}" placeholder="玩家名" maxlength="12" enterkeyhint="done"></div>`; }).join('')}</div>` : ''}
     ${top.length > 1 ? '<p class="note">文化最高的人平手，就共享胜利（规则书第 1 页）。</p>' : ''}
     <h2 class="h">排名与得分构成</h2>
@@ -431,16 +431,58 @@ async function saveImage() {
         c.insertAdjacentHTML('beforeend', `<div style="text-align:center;font:500 11px var(--sans);color:var(--ink2);margin-top:16px">历史巨轮小助手 · ${location.host}</div>`);
       }
     });
-    showImage(canvas.toDataURL('image/jpeg', 0.92));
+    showImage(canvas.toDataURL('image/jpeg', 0.92), '长按图片保存到相册', `历史巨轮结算-${code}.jpg`);
   } catch (e) { toast('生成长图失败：' + e.message); }
   ui.saving = false; render();
 }
-function showImage(url) {
+function showImage(url, hint, file) {
   const el = document.createElement('div');
   el.className = 'shotv';
-  el.innerHTML = `<div class="sv-top"><span>长按图片保存到相册</span><a href="${url}" download="历史巨轮结算-${code}.jpg">下载</a><button type="button">关闭</button></div><img src="${url}" alt="结算长图">`;
+  el.innerHTML = `<div class="sv-top"><span>${hint}</span><a href="${url}" download="${file}">下载</a><button type="button">关闭</button></div><img src="${url}" alt="结算图">`;
   el.querySelector('button').onclick = () => el.remove();
   document.body.appendChild(el);
+}
+
+/* ---------- print: a 3-inch photo poster (2:3, 1200×1800) for a pocket photo printer ---------- */
+// Laid out at 600×900 CSS px and captured at scale 2. Background: an original illustration made with Codex (img/poster-bg.jpg),
+// loaded only when 「打印」 is tapped. Sizes follow docs/打印海报说明.md: text ≥ 20 CSS px (40 px printed), names ≥ 26,
+// totals ≥ 45, everything important ≥ 30 CSS px from the edges.
+const loadImg = src => new Promise((ok, fail) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => fail(new Error('海报底图加载失败')); i.src = src; });
+function posterHtml(R) {
+  const n = R.rows.length, first = S.mode === 'first';
+  const sub = r => first ? [['游戏中', r.culture], ['成就', r.ach]] : [['文化', r.culture], ['事件', r.events], ...(r.ach ? [['奇迹', r.ach]] : []), ...(r.bonus ? [['奖励', r.bonus]] : [])];
+  const top = R.rows.filter(r => r.place === 1);
+  const row = r => `<div class="pr${r.place === 1 ? ' win' : ''}">
+      <span class="pp">${r.place === 1 ? '冠' : r.place}</span>
+      <span class="pa" style="--c:${COLORS[r.id]}">${esc((P(r.id).name || SEAT_ZH[r.id]).slice(0, 1))}</span>
+      <span class="pw"><b>${esc(pname(r.id))}</b><i>${sub(r).map(([k, v]) => `${k} ${v}`).join(' · ')}</i></span>
+      <span class="pt">${r.total}</span></div>`;
+  return `<img class="pbg" src="img/poster-bg.jpg" alt="">
+    <div class="ph1">历史巨轮</div>
+    <div class="ph2">${MODES[S.mode].zh} · ${S.n} 人 · ${S.round} 轮</div>
+    ${n <= 3 ? `<div class="pch"><div class="pcl">${top.length > 1 ? '并 列 第 一' : '文 明 之 巅'}</div>
+      <div class="pcs">${top.map(r => `<span class="pca" style="--c:${COLORS[r.id]}">${esc((P(r.id).name || SEAT_ZH[r.id]).slice(0, 1))}</span>`).join('')}</div>
+      <div class="pcn">${top.map(r => esc(pname(r.id))).join(' · ')}</div></div>` : '<div class="pdv"></div>'}
+    <div class="prs n${n}">${R.rows.map(row).join('')}</div>
+    <div class="pf"><span>${top.length > 1 ? '共享胜利' : `冠军 ${top[0].total} 文化`}</span><span>${new Date().toLocaleDateString('zh-CN')} · 房间 ${code}</span></div>
+    <div class="pu">${location.host}</div>`;
+}
+async function makePoster() {
+  const R = results(S);
+  if (R.error) return toast('计分里有无效数字，请先到「计分」修正');
+  ui.saving = true; render();
+  const el = document.createElement('div');
+  el.id = 'poster';
+  try {
+    await Promise.all([loadScript('vendor/html2canvas.min.js'), loadImg('img/poster-bg.jpg')]);
+    el.innerHTML = posterHtml(R);
+    document.body.appendChild(el);
+    await document.fonts?.ready;
+    const canvas = await window.html2canvas(el, { scale: 2, width: 600, height: 900, backgroundColor: '#f3ecdf', logging: false });
+    showImage(canvas.toDataURL('image/jpeg', 0.92), '长按保存到相册，用打印机 App 选 3 寸相纸打印', `历史巨轮海报-${code}.jpg`);
+  } catch (e) { toast('生成海报失败：' + e.message); }
+  el.remove();
+  ui.saving = false; render();
 }
 
 /* ---------- start player: the hub's finger chooser / bag draw, then 「返回」 comes back here ---------- */
@@ -584,6 +626,7 @@ document.addEventListener('click', e => {
     case 'chk': ui.chk[d.ck] = !ui.chk[d.ck]; render(); break;
     case 'rn': ui.rn = !ui.rn; render(); break;
     case 'save': if (!ui.saving) saveImage(); break;
+    case 'poster': if (!ui.saving) makePoster(); break;
     case 'round': send({ t: 'round', round: S.round }); window.scrollTo({ top: 0, behavior: 'smooth' }); break;
     case 'agego': ui.sheet = { kind: 'agego' }; render(); break;
     case 'agedo': send(d.s === undefined ? { t: 'age', age: S.age } : { t: 'age', age: S.age, starter: d.s === '1' }); ui.sheet = null; render(); break;
