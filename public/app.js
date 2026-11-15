@@ -450,7 +450,13 @@ function showImage(url, hint, file) {
 const loadImg = src => new Promise((ok, fail) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => fail(new Error('海报底图加载失败')); i.src = src; });
 function posterHtml(R) {
   const n = R.rows.length, first = S.mode === 'first';
-  const sub = r => first ? [['游戏中', r.culture], ['成就', r.ach]] : [['文化', r.culture], ['事件', r.events], ...(r.ach ? [['奇迹', r.ach]] : []), ...(r.bonus ? [['奖励', r.bonus]] : [])];
+  // The same items on every row (docs/打印海报说明.md): wonders and bonuses only when someone scored them; at most 3 fit,
+  // so a short game with bonuses shows events and bonuses together.
+  const any = k => R.rows.some(r => r[k]);
+  const cols = first ? [['游戏中', r => r.culture], ['成就', r => r.ach]]
+    : [['文化', r => r.culture], ...(any('ach') && any('bonus') ? [['事件奖励', r => r.events + r.bonus], ['奇迹', r => r.ach]]
+      : [['事件', r => r.events], ...(any('ach') ? [['奇迹', r => r.ach]] : []), ...(any('bonus') ? [['奖励', r => r.bonus]] : [])])];
+  const sub = r => cols.map(([k, f]) => [k, f(r)]);
   const top = R.rows.filter(r => r.place === 1);
   const row = r => `<div class="pr${r.place === 1 ? ' win' : ''}">
       <span class="pp">${r.place === 1 ? '冠' : r.place}</span>

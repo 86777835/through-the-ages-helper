@@ -598,7 +598,7 @@ img.gt{height:54px;width:auto;max-width:100%;object-fit:contain}
 #poster .pa{flex:none;width:58px;height:58px;border-radius:50%;background:var(--c);border:3px solid #fff8e8;box-shadow:0 2px 4px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font:900 28px/1 var(--serif)}
 #poster .pw{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
 #poster .pw b{font:900 27px/1.15 var(--serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#poster .pw i{font:600 20px/1.1 var(--sans);font-style:normal;color:#5c4f40;white-space:nowrap}
+#poster .pw i{font:600 20px/1.1 var(--sans);font-style:normal;color:#5c4f40;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #poster .pt{flex:none;font:600 46px/1 var(--num);color:#2b2219}
 #poster .win .pt{color:#9e2f1c;font-size:52px}
 #poster .n2 .pr{padding:16px 18px 16px 12px}

@@ -35,7 +35,7 @@ async function print(code, label, want) {
   await page.addInitScript(() => localStorage.setItem('tta-tab', 'mvp'));
   await page.goto(api(`/?r=${code}`)); await page.waitForSelector('[data-act="poster"]');
   // keep the poster's text: the page removes the poster node after capturing it
-  await page.evaluate(() => { new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.id === 'poster') setTimeout(() => { window.__poster = { names: [...n.querySelectorAll('.pw b')].map(x => x.textContent), totals: [...n.querySelectorAll('.pt')].map(x => x.textContent), places: [...n.querySelectorAll('.pp')].map(x => x.textContent), minFont: Math.min(...[...n.querySelectorAll('*')].filter(x => x.textContent.trim() && !x.children.length && !x.matches('.pu')).map(x => parseFloat(getComputedStyle(x).fontSize))), gap: (() => { const ch = n.querySelector('.pch'), rs = [...n.querySelectorAll('.pr')], f = n.querySelector('.pf').getBoundingClientRect(); return Math.min(ch ? rs[0].getBoundingClientRect().top - ch.getBoundingClientRect().bottom : 99, f.top - rs.at(-1).getBoundingClientRect().bottom); })(), edge: Math.min(...[...n.querySelectorAll('.pr,.pf')].flatMap(x => { const r = x.getBoundingClientRect(), p = n.getBoundingClientRect(); return [r.left - p.left, p.right - r.right, r.top - p.top, p.bottom - r.bottom]; })) }; }, 0); }))).observe(document.documentElement, { childList: true, subtree: true }); });
+  await page.evaluate(() => { new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.id === 'poster') setTimeout(() => { window.__poster = { names: [...n.querySelectorAll('.pw b')].map(x => x.textContent), subs: [...n.querySelectorAll('.pw i')].map(x => [x.textContent.replace(/[\d\s·]+/g, ' ').trim(), x.scrollWidth <= x.clientWidth]), totals: [...n.querySelectorAll('.pt')].map(x => x.textContent), places: [...n.querySelectorAll('.pp')].map(x => x.textContent), minFont: Math.min(...[...n.querySelectorAll('*')].filter(x => x.textContent.trim() && !x.children.length && !x.matches('.pu')).map(x => parseFloat(getComputedStyle(x).fontSize))), gap: (() => { const ch = n.querySelector('.pch'), rs = [...n.querySelectorAll('.pr')], f = n.querySelector('.pf').getBoundingClientRect(); return Math.min(ch ? rs[0].getBoundingClientRect().top - ch.getBoundingClientRect().bottom : 99, f.top - rs.at(-1).getBoundingClientRect().bottom); })(), edge: Math.min(...[...n.querySelectorAll('.pr,.pf')].flatMap(x => { const r = x.getBoundingClientRect(), p = n.getBoundingClientRect(); return [r.left - p.left, p.right - r.right, r.top - p.top, p.bottom - r.bottom]; })) }; }, 0); }))).observe(document.documentElement, { childList: true, subtree: true }); });
   eq(`${label}: print button on the results tab`, await page.textContent('[data-act="poster"]'), '打印');
   await page.click('[data-act="poster"]'); await page.waitForSelector('.shotv img', { timeout: 20000 });
   const img = await page.$eval('.shotv img', i => new Promise(r => i.complete ? r([i.naturalWidth, i.naturalHeight, i.src]) : i.onload = () => r([i.naturalWidth, i.naturalHeight, i.src])));
@@ -45,6 +45,8 @@ async function print(code, label, want) {
   eq(`${label}: names and totals in finishing order`, [P.names, P.totals, P.places], want);
   eq(`${label}: text at least 20 CSS px (40 px printed)`, P.minFont >= 20, true);
   eq(`${label}: player rows and footer at least 30 CSS px (60 px) from the edges`, P.edge >= 30, true);
+  eq(`${label}: every row shows the same items, none cut off`, P.subs.every(([t, ok]) => ok && t === P.subs[0][0]), true);
+  console.log(`  ${label} items: ${P.subs[0][0]}`);
   eq(`${label}: nothing overlaps (medallion, rows, footer)`, P.gap >= 8, true);
   eq(`${label}: download name and hint`, [await page.getAttribute('.shotv a', 'download'), await page.textContent('.sv-top span')], [`历史巨轮海报-${code}.jpg`, '长按保存到相册，用打印机 App 选 3 寸相纸打印']);
   eq(`${label}: poster node removed afterwards`, await page.$('#poster'), null);
@@ -54,8 +56,8 @@ async function print(code, label, want) {
 
 const c2 = await play(2, 'first', ['小林', '阿哲'], [{ culture: 52, t1: 4, t2: 2, gov: 1, sci: 5, str: 6, happy: 4, prod: 9, col: 1, w2: 1 }, { culture: 61, t1: 3, sci: 3, str: 4 }]);
 await print(c2, '2p', [['小林', '阿哲'], ['94', '71'], ['冠', '2']]);
-const c3 = await play(3, 'short', ['甲', '乙乙', '丙丙丙'], [{ culture: 90, w2: 2, e0: 5 }, { culture: 95, e1: 8 }, { culture: 70 }]);
-await print(c3, '3p', [['甲', '乙乙', '丙丙丙'], ['107', '103', '70'], ['冠', '2', '3']]);
+const c3 = await play(3, 'short', ['甲', '乙乙', '丙丙丙'], [{ culture: 196, w2: 2, e0: 5 }, { culture: 195, e1: 8, bonus: 6 }, { culture: 170 }]);
+await print(c3, '3p', [['甲', '乙乙', '丙丙丙'], ['213', '209', '170'], ['冠', '2', '3']]);
 const c4 = await play(4, 'full', ['欧阳长名字', '老王', '小美', 'Kevin'], [{ culture: 180, e0: 14, e1: 7 }, { culture: 196, e0: 7, e1: 14, bonus: 6 }, { culture: 150, e0: 0, e1: 0 }, { culture: 201 }]);
 await print(c4, '4p', [['老王', '欧阳长名字', 'Kevin', '小美'], ['223', '201', '201', '150'], ['冠', '2', '2', '4']]);
 await b.close();
